@@ -204,6 +204,21 @@ public:
 
 int Masina::TVA = 19;
 
+ostream& operator<<(ostream& output, Masina m) {
+	output << "Marca:" << m.marca << endl;
+	output << "Nr roti:" << m.nrRoti << ": ";
+	if (m.producatori != NULL) {
+		for (int i = 0; i < m.nrRoti; i++) {
+			output << m.producatori[i] << ", ";
+		}
+	}
+	output << endl;
+	output << "Pret:" << m.pret << endl;
+	output << "TVA:" << m.TVA << endl;
+	output << "An fabricatie:" << m.anFabricatie << endl;
+	return output;
+}
+
 class Magazin {
 private:
 	string oras;
@@ -432,6 +447,39 @@ public:
 };
 int Magazin::impozitM2 = 2;
 
+
+istream& operator>>(istream& input, Magazin& m) {
+	cout << "Oras:";
+	input >> m.oras;
+	cout << "nr angajati:";
+	input >> m.nrAngajati;
+	if (m.salarii != NULL) {
+		delete[]m.salarii;
+	}
+	if (m.nrAngajati > 0) {
+		m.salarii = new float[m.nrAngajati];
+		for (int i = 0; i < m.nrAngajati; i++) {
+			cout << " Salariul " << i + 1 << ":";
+			input >> m.salarii[i];
+		}
+	}
+	else {
+		m.salarii = NULL;
+	}
+	cout << "Suprafata:";
+	input >> m.suprafata;
+	return input;
+}
+
+Magazin operator+(float salariu, Magazin m) {
+	float valoare = m.nrAngajati;
+	return m + salariu;
+}
+
+Magazin f(Magazin m) {
+	Magazin magazin;
+	return magazin;
+}
 
 
 class Cofetarie {
@@ -674,27 +722,9 @@ ostream& operator<<(ostream& output, Cofetarie c) {
 	return output;
 }
 
-
-
-
-ostream& operator<<(ostream& output, Masina m) {
-	output << "Marca:" << m.marca << endl;
-	output << "Nr roti:" << m.nrRoti << ": ";
-	if (m.producatori != NULL) {
-		for (int i = 0; i < m.nrRoti; i++) {
-			output << m.producatori[i] << ", ";
-		}
-	}
-	output << endl;
-	output << "Pret:" << m.pret << endl;
-	output << "TVA:" << m.TVA << endl;
-	output << "An fabricatie:" << m.anFabricatie << endl;
-	return output;
-}
-
 //ComplexComercial
-//Anreprenor
-//Livrator?
+//Antreprenor
+//Livrator
 
 class ComplexComercial {
 private:
@@ -703,17 +733,18 @@ private:
 	int nrMasiniParcate;
 	Masina* masiniParcate;
 
-
 public:
-	ComplexComercial() {
 
+	Magazin getMagazin()const {
+		return this->magazin;
+	}
+	ComplexComercial() {
 		this->cofetarie = new Cofetarie("Delicii", 3, true, 2024, 20);
 		this->nrMasiniParcate = 3;
 		this->masiniParcate = new Masina[this->nrMasiniParcate];
 	}
-
-
-	ComplexComercial(Magazin mag, Cofetarie* cof, int nrMasini, Masina* masini) {
+	ComplexComercial(Magazin mag, Cofetarie* cof, int nrMasini, Masina* masini)
+	{
 		this->magazin = mag;
 		this->cofetarie = new Cofetarie(*cof);
 		this->nrMasiniParcate = nrMasini;
@@ -721,10 +752,7 @@ public:
 		for (int i = 0; i < nrMasini; i++) {
 			this->masiniParcate[i] = masini[i];
 		}
-
 	}
-
-
 	ComplexComercial(const ComplexComercial& cc) {
 		this->magazin = cc.magazin;
 		this->cofetarie = new Cofetarie(*(cc.cofetarie));
@@ -733,16 +761,13 @@ public:
 		for (int i = 0; i < cc.nrMasiniParcate; i++) {
 			this->masiniParcate[i] = cc.masiniParcate[i];
 		}
-
 	}
-
 	~ComplexComercial() {
 		if (this->cofetarie) {
 			delete this->cofetarie;
 		}
-
 		if (this->masiniParcate) {
-			delete[] this->masiniParcate;
+			delete[]this->masiniParcate;
 		}
 	}
 
@@ -755,9 +780,8 @@ public:
 			this->cofetarie = new Cofetarie(*(cc.cofetarie));
 			this->nrMasiniParcate = cc.nrMasiniParcate;
 			if (this->masiniParcate) {
-				delete[] this->masiniParcate;
+				delete[]this->masiniParcate;
 			}
-
 			this->masiniParcate = new Masina[cc.nrMasiniParcate];
 			for (int i = 0; i < cc.nrMasiniParcate; i++) {
 				this->masiniParcate[i] = cc.masiniParcate[i];
@@ -766,23 +790,20 @@ public:
 		return *this;
 	}
 
-
-	friend ostream& operator<<(ostream& out, const ComplexComercial& cc)
-	{
-		out << "Magazinul din complexul comercial:" << endl;
-		out << cc.magazin << endl;
-		out << "Cofetaria din complex este:" << endl;
-		out << *cc.cofetarie;
-		out << "Avem " << cc.nrMasiniParcate << " masini parcate in complex:" << endl;
+	friend ostream& operator<<(ostream& o, const ComplexComercial& cc) {
+		o << "Magazinul din complexul comercial: " << endl;
+		o << cc.magazin << endl;
+		o << "Cofetaria din complex este:" << endl;
+		o << *cc.cofetarie << endl;
+		o << "Avem " << cc.nrMasiniParcate << " masini parcate in complex:" << endl;
 		for (int i = 0; i < cc.nrMasiniParcate; i++) {
-			out << cc.masiniParcate[i] << endl;
+			o << cc.masiniParcate[i] << endl;
 		}
-		out << endl;
-		return out;
+		o << endl;
+		return o;
 	}
 
 	ComplexComercial operator--() {
-
 		if (this->nrMasiniParcate > 0) {
 			this->nrMasiniParcate--;
 			Masina* aux = new Masina[this->nrMasiniParcate];
@@ -796,32 +817,27 @@ public:
 	}
 
 	ComplexComercial operator--(int) {
-		ComplexComercial copie = *this; 
+		ComplexComercial cc = *this;
 		--(*this);
-		return copie;
+		return cc;
 	}
-
-	Magazin getMagazin() {
-		return this->magazin;
-	}
-
 };
-
 
 void main() {
 
 	ComplexComercial cc1;
+
 	Magazin magazin;
 	Cofetarie* c = new Cofetarie();
 	Masina* masini = new Masina[5];
+
 	ComplexComercial cc2(magazin, c, 5, masini);
 
 	cout << cc2;
 
-	cc1 = cc2--;
-	--cc2;
-
-	cout << cc1;
+	//cc2--;
 
 	cc1 = --cc2;
+
+	cout << cc1;
 }
